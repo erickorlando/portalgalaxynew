@@ -6,4 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Interfaces\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PortalGalaxy.DataAccess\PortalGalaxy.DataAccess.csproj" />
+    <ProjectReference Include="..\PortalGalaxy.Entities\PortalGalaxy.Entities.csproj" />
+  </ItemGroup>
+
 </Project>
