@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PortalGalaxy.DataAccess;
 
@@ -11,9 +12,11 @@ using PortalGalaxy.DataAccess;
 namespace PortalGalaxy.DataAccess.Migrations
 {
     [DbContext(typeof(PortalGalaxyDbContext))]
-    partial class PortalGalaxyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240725024357_CamposAuditoria")]
+    partial class CamposAuditoria
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,9 +51,6 @@ namespace PortalGalaxy.DataAccess.Migrations
                     b.Property<bool>("Estado")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("FechaActualizacion")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
 
@@ -76,10 +76,6 @@ namespace PortalGalaxy.DataAccess.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("UsuarioActualizacion")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<string>("UsuarioCreacion")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -101,18 +97,11 @@ namespace PortalGalaxy.DataAccess.Migrations
                     b.Property<bool>("Estado")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("FechaActualizacion")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("UsuarioActualizacion")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -182,9 +171,6 @@ namespace PortalGalaxy.DataAccess.Migrations
                     b.Property<bool>("Estado")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("FechaActualizacion")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
 
@@ -193,10 +179,6 @@ namespace PortalGalaxy.DataAccess.Migrations
 
                     b.Property<int>("TallerId")
                         .HasColumnType("int");
-
-                    b.Property<string>("UsuarioActualizacion")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("UsuarioCreacion")
                         .IsRequired()
@@ -226,9 +208,6 @@ namespace PortalGalaxy.DataAccess.Migrations
                     b.Property<bool>("Estado")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("FechaActualizacion")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
 
@@ -241,10 +220,6 @@ namespace PortalGalaxy.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(12)
                         .HasColumnType("nvarchar(12)");
-
-                    b.Property<string>("UsuarioActualizacion")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("UsuarioCreacion")
                         .IsRequired()
@@ -278,9 +253,6 @@ namespace PortalGalaxy.DataAccess.Migrations
                     b.Property<bool>("Estado")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("FechaActualizacion")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
 
@@ -310,10 +282,6 @@ namespace PortalGalaxy.DataAccess.Migrations
                         .HasMaxLength(100)
                         .IsUnicode(false)
                         .HasColumnType("varchar(100)");
-
-                    b.Property<string>("UsuarioActualizacion")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("UsuarioCreacion")
                         .IsRequired()

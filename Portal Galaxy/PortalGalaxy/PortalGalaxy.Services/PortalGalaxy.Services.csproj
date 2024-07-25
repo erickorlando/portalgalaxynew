@@ -9,6 +9,7 @@
   <ItemGroup>
     <Folder Include="Interfaces\" />
     <Folder Include="Implementaciones\" />
+    <Folder Include="Utils\" />
     <Folder Include="Profiles\" />
   </ItemGroup>
 
