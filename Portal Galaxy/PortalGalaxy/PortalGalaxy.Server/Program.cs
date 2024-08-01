@@ -49,7 +49,6 @@ builder.Services.AddIdentity<GalaxyIdentityUser, IdentityRole>(policies =>
     .AddDefaultTokenProviders();
 
 
-
 // Registramos las dependencias de Repositories y Services
 builder.Services.Scan(selector => selector
     .FromAssemblies(typeof(ICategoriaRepository).Assembly,

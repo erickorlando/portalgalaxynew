@@ -14,6 +14,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace PortalGalaxy.Services.Implementaciones;
 
@@ -24,21 +26,21 @@ public class UserService : IUserService
     private readonly IOptions<AppSettings> _options;
     private readonly IAlumnoRepository _alumnoRepository;
     private readonly IEmailService _emailService;
-    //private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public UserService(UserManager<GalaxyIdentityUser> userManager,
         ILogger<UserService> logger,
         IOptions<AppSettings> options,
         IAlumnoRepository alumnoRepository,
-        IEmailService emailService)
-        //IHttpContextAccessor httpContextAccessor)
+        IEmailService emailService,
+        IHttpContextAccessor httpContextAccessor)
     {
         _userManager = userManager;
         _logger = logger;
         _options = options;
         _alumnoRepository = alumnoRepository;
         _emailService = emailService;
-        //_httpContextAccessor = httpContextAccessor;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<LoginDtoResponse> LoginAsync(LoginDtoRequest request)
@@ -177,13 +179,90 @@ public class UserService : IUserService
         return response;
     }
 
-    public Task<BaseResponse> SendTokenToResetPasswordAsync(GenerateTokenToResetDtoRequest request)
+    public async Task<BaseResponse> SendTokenToResetPasswordAsync(GenerateTokenToResetDtoRequest request)
     {
-        throw new NotImplementedException();
+        var response = new BaseResponse();
+
+        try
+        {
+            var user = await _userManager.FindByNameAsync(request.Usuario);
+            if (user is null)
+            {
+                throw new SecurityException("Usuario no existe");
+            }
+
+            user = await _userManager.FindByEmailAsync(request.Email);
+            if (user is null)
+            {
+                throw new SecurityException("El correo indicado no se encuentra registrado");
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            _logger.LogInformation("Valor del token sin codificar {token}", token);
+
+            // codificamos el token
+            token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+            var host =
+                $"{_httpContextAccessor.HttpContext!.Request.Scheme}://{_httpContextAccessor.HttpContext!.Request.Host}";
+
+            await _emailService.SendEmailAsync(request.Email, "Portal Galaxy - Solicitud de Reseteo de clave",
+                @$"<p>Para recuperar su clave, haga click en el siguiente enlace <a href=""{host}/reset-password?email={request.Email}&token={token}"">Recuperar clave</a></p>");
+
+            response.Success = true;
+
+        }
+        catch (SecurityException ex)
+        {
+            response.ErrorMessage = ex.Message;
+            _logger.LogError(ex, "Error de seguridad {Message}", ex.Message);
+        }
+        catch (Exception ex)
+        {
+            response.ErrorMessage = $"Error al solicitar el reseteo de password para el usuario {request.Usuario}";
+            _logger.LogCritical(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
+        }
+
+        return response;
     }
 
-    public Task<BaseResponse> ResetPasswordAsync(ResetPasswordDtoRequest request)
+    public async Task<BaseResponse> ResetPasswordAsync(ResetPasswordDtoRequest request)
     {
-        throw new NotImplementedException();
+        var response = new BaseResponse();
+        try
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user is null)
+                throw new SecurityException("Usuario no existe");
+
+            var result = await _userManager.ResetPasswordAsync(user, request.Token, request.Clave);
+
+            if (!result.Succeeded)
+            {
+                var sb = new StringBuilder();
+                foreach (var identityError in result.Errors)
+                {
+                    sb.AppendFormat("{0} ", identityError.Description);
+                }
+
+                response.ErrorMessage = sb.ToString();
+                sb.Clear();
+            }
+            else
+            {
+                // enviamos un email con la confirmacion de que se cambio la clave con exito
+                await _emailService.SendEmailAsync(request.Email, "Portal Galaxy - Reseteo de clave exitoso",
+                    "Su clave ha sido reseteada con exito");
+            }
+
+            response.Success = result.Succeeded;
+        }
+        catch (Exception ex)
+        {
+            response.ErrorMessage = $"Error al resetear el password para el usuario {request.Email}";
+            _logger.LogCritical(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
+        }
+        return response;
     }
 }
