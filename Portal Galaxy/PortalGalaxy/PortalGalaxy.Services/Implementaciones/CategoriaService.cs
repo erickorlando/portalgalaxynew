@@ -62,7 +62,7 @@ public class CategoriaService : ICategoriaService
         return response;
     }
 
-    public async Task<BaseResponse> AddAsync(CategoriaDtoRequest request)
+    public async Task<BaseResponse> AddAsync(CategoriaDtoRequest request, string usuario)
     {
         var response = new BaseResponse();
 
@@ -70,7 +70,7 @@ public class CategoriaService : ICategoriaService
         {
             var entity = _mapper.Map<Categoria>(request);
             
-            entity.InsertarAuditoria("administrador"); // TODO: Quitar harcodeo cuando tenga autenticacion
+            entity.InsertarAuditoria(usuario); 
 
             await _repository.AddAsync(entity);
 
@@ -85,7 +85,7 @@ public class CategoriaService : ICategoriaService
         return response;
     }
 
-    public async Task<BaseResponse> UpdateAsync(int id, CategoriaDtoRequest request)
+    public async Task<BaseResponse> UpdateAsync(int id, CategoriaDtoRequest request, string usuario)
     {
         var response = new BaseResponse();
 
@@ -100,7 +100,7 @@ public class CategoriaService : ICategoriaService
 
             _mapper.Map(request, entity);
 
-            entity.ActualizarAuditoria(Environment.UserName); // TODO: Reemplazar por usuario autenticado
+            entity.ActualizarAuditoria(usuario); 
 
             await _repository.UpdateAsync();
 
