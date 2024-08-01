@@ -9,9 +9,9 @@ public interface ICategoriaService
 
     Task<BaseResponseGeneric<CategoriaDtoRequest>> FindByIdAsync(int id);
 
-    Task<BaseResponse> AddAsync(CategoriaDtoRequest request);
+    Task<BaseResponse> AddAsync(CategoriaDtoRequest request, string usuario);
 
-    Task<BaseResponse> UpdateAsync(int id, CategoriaDtoRequest request);
+    Task<BaseResponse> UpdateAsync(int id, CategoriaDtoRequest request, string usuario);
 
     Task<BaseResponse> DeleteAsync(int id);
 }
