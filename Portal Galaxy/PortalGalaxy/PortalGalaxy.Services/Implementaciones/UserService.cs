@@ -240,6 +240,7 @@ public class UserService : IUserService
 
             if (!result.Succeeded)
             {
+                _logger.LogWarning("El reseteo de clave no fue exitoso");
                 var sb = new StringBuilder();
                 foreach (var identityError in result.Errors)
                 {

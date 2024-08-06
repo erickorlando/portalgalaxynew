@@ -23,7 +23,7 @@ public class RegistrarUsuarioDto
     public string Password { get; set; } = default!;
 
     [Compare(nameof(Password))]
-    public string ConfirmarPassword { get; set; } = default!;
+    public string ConfirmPassword { get; set; } = default!;
 
     public string CodigoDepartamento { get; set; } = string.Empty;
     public string CodigoProvincia { get; set; } = string.Empty;
