@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Configuracion\" />
-    <Folder Include="Response\" />
   </ItemGroup>
 
 </Project>

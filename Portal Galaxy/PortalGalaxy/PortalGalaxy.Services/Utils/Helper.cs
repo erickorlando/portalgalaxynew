@@ -15,4 +15,16 @@ public static class Helper
         entity.UsuarioActualizacion = usuario;
         entity.FechaActualizacion = DateTime.UtcNow;
     }
+
+    public static int GetTotalPages(int totalRows, int rowsPerPage)
+    {
+        if (totalRows == 0) return 0;
+        var totalPages = totalRows / rowsPerPage;
+        if (totalPages % rowsPerPage > 0)
+        {
+            totalPages++;
+        }
+
+        return totalPages;
+    }
 }

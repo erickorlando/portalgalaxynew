@@ -63,6 +63,7 @@ builder.Services.Scan(selector => selector
 builder.Services.AddAutoMapper(config =>
 {
     config.AddProfile<CategoriaProfile>();
+    config.AddProfile<TallerProfile>();
 });
 
 builder.Services.AddAuthentication(x =>

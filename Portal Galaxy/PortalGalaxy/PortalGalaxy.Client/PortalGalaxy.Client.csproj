@@ -30,6 +30,7 @@
 	<ItemGroup>
 	  <_ContentIncludedByDefault Remove="Genericos\ListaGenerica.razor" />
 	  <_ContentIncludedByDefault Remove="Pages\Categorias\BotonesAccion.razor" />
+	  <_ContentIncludedByDefault Remove="Pages\Talleres\ListTaller.razor" />
 	  <_ContentIncludedByDefault Remove="Shared\DataPager.razor" />
 	</ItemGroup>
 
@@ -39,6 +40,10 @@
 
 	<ItemGroup>
 	  <UpToDateCheckInput Remove="Pages\Categorias\BotonesAccion.razor" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <UpToDateCheckInput Remove="Pages\Talleres\ListTaller.razor" />
 	</ItemGroup>
 
 </Project>
