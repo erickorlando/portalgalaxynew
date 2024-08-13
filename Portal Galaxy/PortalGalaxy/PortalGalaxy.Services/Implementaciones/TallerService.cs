@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
+using PortalGalaxy.Entities;
 using PortalGalaxy.Repositories.Interfaces;
 using PortalGalaxy.Services.Interfaces;
 using PortalGalaxy.Services.Utils;
@@ -56,14 +57,48 @@ public class TallerService : ITallerService
         throw new NotImplementedException();
     }
 
-    public Task<BaseResponse> AddAsync(TallerDtoRequest request)
+    public async Task<BaseResponse> AddAsync(TallerDtoRequest request)
     {
-        throw new NotImplementedException();
+        var response = new BaseResponse();
+        try
+        {
+            var entity = _mapper.Map<Taller>(request);
+
+            //entity.PortadaUrl = await _fileUploader.UploadFileAsync(request.Base64Portada, request.ArchivoPortada);
+            //entity.TemarioUrl = await _fileUploader.UploadFileAsync(request.Base64Temario, request.ArchivoTemario);
+
+            await _repository.AddAsync(entity);
+            response.Success = true;
+        }
+        catch (Exception ex)
+        {
+            response.ErrorMessage = "Error al agregar un Taller";
+            _logger.LogError(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
+        }
+        return response;
     }
 
-    public Task<BaseResponseGeneric<TallerDtoRequest>> FindByIdAsync(int id)
+    public async Task<BaseResponseGeneric<TallerDtoRequest>> FindByIdAsync(int id)
     {
-        throw new NotImplementedException();
+        var response = new BaseResponseGeneric<TallerDtoRequest>();
+        try
+        {
+            var entity = await _repository.FindByIdAsync(id);
+            if (entity == null)
+            {
+                response.ErrorMessage = "No se encontró el Taller";
+                return response;
+            }
+
+            response.Data = _mapper.Map<TallerDtoRequest>(entity);
+            response.Success = true;
+        }
+        catch (Exception ex)
+        {
+            response.ErrorMessage = "Error al buscar un Taller";
+            _logger.LogError(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
+        }
+        return response;
     }
 
     public Task<BaseResponseGeneric<TallerHomeDtoResponse>> GetTallerHomeAsync(int id)
@@ -81,13 +116,61 @@ public class TallerService : ITallerService
         throw new NotImplementedException();
     }
 
-    public Task<BaseResponse> UpdateAsync(int id, TallerDtoRequest request)
+    public async Task<BaseResponse> UpdateAsync(int id, TallerDtoRequest request)
     {
-        throw new NotImplementedException();
+        var response = new BaseResponse();
+        try
+        {
+            var entity = await _repository.FindByIdAsync(id);
+            if (entity == null)
+            {
+                response.ErrorMessage = "No se encontró el Taller";
+                return response;
+            }
+
+            _mapper.Map(request, entity);
+
+            if (request.Base64Portada != null)
+            {
+                //entity.PortadaUrl = await _fileUploader.UploadFileAsync(request.Base64Portada, request.ArchivoPortada);
+            }
+
+            if (request.Base64Temario != null)
+            {
+                //entity.TemarioUrl = await _fileUploader.UploadFileAsync(request.Base64Temario, request.ArchivoTemario);
+            }
+
+            await _repository.UpdateAsync();
+            response.Success = true;
+        }
+        catch (Exception ex)
+        {
+            response.ErrorMessage = "Error al actualizar un Taller";
+            _logger.LogError(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
+        }
+        return response;
     }
 
-    public Task<BaseResponse> DeleteAsync(int id)
+    public async Task<BaseResponse> DeleteAsync(int id)
     {
-        throw new NotImplementedException();
+        var response = new BaseResponse();
+        try
+        {
+            var entity = await _repository.FindByIdAsync(id);
+            if (entity == null)
+            {
+                response.ErrorMessage = "No se encontró el Taller";
+                return response;
+            }
+
+            await _repository.DeleteAsync(id);
+            response.Success = true;
+        }
+        catch (Exception ex)
+        {
+            response.ErrorMessage = "Error al eliminar un Taller";
+            _logger.LogError(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
+        }
+        return response;
     }
 }

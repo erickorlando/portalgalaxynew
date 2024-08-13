@@ -47,15 +47,15 @@ public class CrudRestHelperBase<TRequest, TResponse> : RestBase, ICrudRestHelper
         throw new InvalidOperationException(response.ErrorMessage);
     }
 
-    public async Task CreateAsync(TRequest request)
+    public async Task CreateAsync<TResponseOutput>(TRequest request)
+        where TResponseOutput : BaseResponse
     {
-        var response = await HttpClient.PostAsJsonAsync(BaseUrl, request);
-        var resultado = await response.Content.ReadFromJsonAsync<BaseResponse>();
-        if (response.StatusCode == HttpStatusCode.BadRequest)
-            throw new InvalidOperationException("No todos los datos fueron ingresados correctamente");
+        var response = await SendAsync<TRequest, TResponseOutput>(request, HttpMethod.Post, string.Empty);
 
-        if (resultado is null || resultado.Success == false)
-            throw new InvalidOperationException(resultado?.ErrorMessage);
+        if (response.Success == false)
+        {
+            throw new InvalidOperationException(response.ErrorMessage);
+        }
     }
 
     public async Task UpdateAsync(int id, TRequest request)
