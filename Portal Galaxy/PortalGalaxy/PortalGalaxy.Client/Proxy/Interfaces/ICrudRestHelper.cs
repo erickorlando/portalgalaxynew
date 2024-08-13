@@ -12,7 +12,7 @@ public interface ICrudRestHelper<TRequest, TResponse>
 
     Task<TRequest> FindByIdAsync(int id);
 
-    Task CreateAsync(TRequest request);
+    Task CreateAsync<TResponseOutput>(TRequest request) where TResponseOutput : BaseResponse;
 
     Task UpdateAsync(int id, TRequest request);
 

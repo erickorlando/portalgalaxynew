@@ -13,4 +13,6 @@ public class Taller : EntityBase
     public string? PortadaUrl { get; set; }
     public string? TemarioUrl { get; set; }
     public string? Descripcion { get; set; }
+
+    public ICollection<Inscripcion> Inscripciones { get; set; } = new List<Inscripcion>();
 }
