@@ -70,32 +70,27 @@ public class TallerRepository(PortalGalaxyDbContext context)
     public async Task<(ICollection<InscritosPorTallerInfo> Collection, int Total)> ListAsync(int? instructorId, string? taller, int? situacion, DateOnly? fechaInicio, DateOnly? fechaFin, int pagina,
         int filas)
     {
-        await using var multipleQuery = await Context.Database.GetDbConnection()
-            .QueryMultipleAsync(
-                sql: "uspListarInscripciones",
-                commandType: CommandType.StoredProcedure,
-                param: new
-                {
-                    instructorId,
-                    taller,
-                    situacion,
-                    fechaInicio,
-                    fechaFin,
-                    pagina = pagina - 1,
-                    filas
-                });
+        var tupla = await ListAsync(predicado: p => p.Nombre.Contains(taller ?? string.Empty)
+                                                    && (instructorId == null || p.InstructorId == instructorId)
+                                                    && (fechaInicio == null || fechaInicio <= p.FechaInicio)
+                                                    && (fechaFin == null || fechaFin >= p.FechaInicio),
+            selector: p => new InscritosPorTallerInfo
+            {
+                Id = p.Id,
+                Taller = p.Nombre,
+                Categoria = p.Categoria.Nombre,
+                Instructor = p.Instructor.Nombres,
+                Fecha = p.FechaInicio.ToString(),
+                Situacion = p.Situacion.ToString().Replace("_", " "),
+                Cantidad = p.Inscripciones.Count,
+            },
+            orderBy: x => x.Id,
+            relaciones: "Instructor",
+            pagina: pagina,
+            filas: filas);
 
-        try
-        {
-            var collection = multipleQuery.Read<InscritosPorTallerInfo>().ToList();
-            var total = multipleQuery.ReadFirst<int>();
+        return tupla;
 
-            return (collection, total);
-        }
-        catch (Exception)
-        {
-            return (new List<InscritosPorTallerInfo>(), 0);
-        }
     }
 
     public async Task<TallerHomeInfo?> ObtenerTallerHomeAsync(int id)

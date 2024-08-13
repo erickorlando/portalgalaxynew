@@ -42,19 +42,74 @@ public class TallerService : ITallerService
         return response;
     }
 
-    public Task<PaginationResponse<InscritosPorTallerDtoResponse>> ListAsync(BusquedaInscritosPorTallerRequest request)
+    public async Task<PaginationResponse<InscritosPorTallerDtoResponse>> ListAsync(BusquedaInscritosPorTallerRequest request)
     {
-        throw new NotImplementedException();
+        var response = new PaginationResponse<InscritosPorTallerDtoResponse>();
+
+        try
+        {
+            // Codigo
+            var tupla = await _repository.ListAsync(request.InstructorId, request.Taller, request.Situacion,
+                request.FechaInicio, request.FechaFin, request.Pagina, request.Filas);
+
+            response.Data = _mapper.Map<ICollection<InscritosPorTallerDtoResponse>>(tupla.Collection);
+            response.TotalPages = Helper.GetTotalPages(tupla.Total, request.Filas);
+            response.Success = true;
+        }
+        catch (Exception ex)
+        {
+            response.ErrorMessage = "Error al listar los inscritos por taller";
+            _logger.LogError(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
+        }
+
+        return response;
     }
 
-    public Task<BaseResponseGeneric<ICollection<TallerSimpleDtoResponse>>> ListSimpleAsync()
+    public async Task<BaseResponseGeneric<ICollection<TallerSimpleDtoResponse>>> ListSimpleAsync()
     {
-        throw new NotImplementedException();
+        var response = new BaseResponseGeneric<ICollection<TallerSimpleDtoResponse>>();
+
+        try
+        {
+            response.Data = await _repository.ListAsync(
+                predicado: x => x.Situacion == SituacionTaller.Aperturada || x.Situacion == SituacionTaller.Por_Aperturar,
+                selector: x => new TallerSimpleDtoResponse
+                {
+                    Id = x.Id,
+                    Nombre = x.Nombre
+                });
+
+            response.Success = true;
+        }
+        catch (Exception ex)
+        {
+            response.ErrorMessage = "Error al cargar los talleres";
+            _logger.LogCritical(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
+        }
+
+        return response;
     }
 
-    public Task<PaginationResponse<TallerHomeDtoResponse>> ListarTalleresHomeAsync(BusquedaTallerHomeRequest request)
+    public async Task<PaginationResponse<TallerHomeDtoResponse>> ListarTalleresHomeAsync(BusquedaTallerHomeRequest request)
     {
-        throw new NotImplementedException();
+        var response = new PaginationResponse<TallerHomeDtoResponse>();
+
+        try
+        {
+            var tupla = await _repository.ListarTalleresHomeAsync(request.Nombre, request.InstructorId,
+                request.FechaInicio, request.FechaFin, request.Pagina, request.Filas);
+
+            response.Data = _mapper.Map<ICollection<TallerHomeDtoResponse>>(tupla.Collection);
+            response.TotalPages = Helper.GetTotalPages(tupla.Total, request.Filas);
+            response.Success = true;
+        }
+        catch (Exception ex)
+        {
+            response.ErrorMessage = "Error al listar los talleres";
+            _logger.LogError(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
+        }
+
+        return response;
     }
 
     public async Task<BaseResponse> AddAsync(TallerDtoRequest request)

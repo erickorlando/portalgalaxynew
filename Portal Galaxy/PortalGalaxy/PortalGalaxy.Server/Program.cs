@@ -67,6 +67,8 @@ builder.Services.AddAutoMapper(config =>
     config.AddProfile<CategoriaProfile>();
     config.AddProfile<TallerProfile>();
     config.AddProfile<InstructorProfile>();
+    config.AddProfile<InscripcionProfile>();
+    config.AddProfile<AlumnoProfile>();
 });
 
 builder.Services.AddAuthentication(x =>

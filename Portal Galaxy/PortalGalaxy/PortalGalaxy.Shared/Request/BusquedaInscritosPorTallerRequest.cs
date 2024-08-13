@@ -6,7 +6,7 @@ public class BusquedaInscritosPorTallerRequest : RequestBase
     public int? InstructorId { get; set; }
     public string? Taller { get; set; }
     public int? Situacion { get; set; }
-    public DateTime? FechaInicio { get; set; }
-    public DateTime? FechaFin { get; set; }
+    public DateOnly? FechaInicio { get; set; }
+    public DateOnly? FechaFin { get; set; }
 
 }
