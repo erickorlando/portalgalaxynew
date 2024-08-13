@@ -25,21 +25,23 @@ else
     }
     else
     {
-        <table class="table table-hover table-bordered">
-            <thead>
-                <tr class="table-primary">
-                    @Cabeceras
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Lista)
-                {
-                    <tr>
-                        @Detalles(item)
+        <div id="tablaConDatos">
+            <table class="table table-hover table-bordered">
+                <thead>
+                    <tr class="table-primary">
+                        @Cabeceras
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var item in Lista)
+                    {
+                        <tr>
+                            @Detalles(item)
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 </div>
 

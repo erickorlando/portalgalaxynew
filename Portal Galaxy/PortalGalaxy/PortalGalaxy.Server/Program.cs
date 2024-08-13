@@ -8,6 +8,7 @@ using PortalGalaxy.Repositories.Interfaces;
 using PortalGalaxy.Services.Interfaces;
 using PortalGalaxy.Services.Profiles;
 using PortalGalaxy.Shared.Configuracion;
+using QuestPDF.Infrastructure;
 using Scrutor;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +31,7 @@ builder.Services.AddDbContext<SecurityDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SecurityDb"));
 });
 
+QuestPDF.Settings.License = LicenseType.Community;
 
 // Configuramos ASP.NET Identity
 builder.Services.AddIdentity<GalaxyIdentityUser, IdentityRole>(policies =>
