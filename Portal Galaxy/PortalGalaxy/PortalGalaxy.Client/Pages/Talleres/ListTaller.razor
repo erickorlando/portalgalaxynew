@@ -1,4 +1,5 @@
 ﻿@page "/taller/list"
+@using PortalGalaxy.Client.Xls
 @inject ITallerProxy Proxy
 @inject IJsonProxy JsonProxy
 @inject ICategoriaProxy CategoriaProxy
@@ -6,6 +7,7 @@
 @inject IToastService Toaster
 @inject SweetAlertService Swal
 @inject IJSRuntime JsRuntime
+@inject HttpClient HttpClient
 
 <ListaGenerica TItem="TallerDtoResponse" Lista="Talleres" Titulo="Lista de Talleres">
     <Filtros>
@@ -265,6 +267,27 @@
 
     private async Task OnExportarExcel()
     {
+        if (Talleres is null) return;
 
+        try
+        {
+            IsLoading = true;
+            var plantilla = await HttpClient.GetStreamAsync("assets/xls/TallerTemplate.xlsx");
+
+            var excel = new PlantillaXls();
+            var bytes = excel.GenerarPlantilla(plantilla, Talleres);
+
+            await using var module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/archivos.js");
+
+            await module.InvokeVoidAsync("descargarArchivo", "talleresGalaxy.xlsx", bytes, "application/octet-stream");
+        }
+        catch (Exception ex)
+        {
+            Toaster.ShowError(ex.Message);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 }

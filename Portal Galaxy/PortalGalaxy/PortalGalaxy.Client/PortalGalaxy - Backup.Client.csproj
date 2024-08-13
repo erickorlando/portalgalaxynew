@@ -49,7 +49,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Xls\" />
+	  <Folder Include="NewFolder\" />
 	</ItemGroup>
 
 </Project>
