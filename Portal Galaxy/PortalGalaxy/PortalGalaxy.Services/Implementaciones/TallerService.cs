@@ -14,12 +14,14 @@ public class TallerService : ITallerService
     private readonly ITallerRepository _repository;
     private readonly ILogger<TallerService> _logger;
     private readonly IMapper _mapper;
+    private readonly IFileUploader _fileUploader;
 
-    public TallerService(ITallerRepository repository, ILogger<TallerService> logger, IMapper mapper)
+    public TallerService(ITallerRepository repository, ILogger<TallerService> logger, IMapper mapper, IFileUploader fileUploader)
     {
         _repository = repository;
         _logger = logger;
         _mapper = mapper;
+        _fileUploader = fileUploader;
     }
 
     public async Task<PaginationResponse<TallerDtoResponse>> ListAsync(BusquedaTallerRequest request)
@@ -119,8 +121,8 @@ public class TallerService : ITallerService
         {
             var entity = _mapper.Map<Taller>(request);
 
-            //entity.PortadaUrl = await _fileUploader.UploadFileAsync(request.Base64Portada, request.ArchivoPortada);
-            //entity.TemarioUrl = await _fileUploader.UploadFileAsync(request.Base64Temario, request.ArchivoTemario);
+            entity.PortadaUrl = await _fileUploader.UploadFileAsync(request.Base64Portada, request.ArchivoPortada);
+            entity.TemarioUrl = await _fileUploader.UploadFileAsync(request.Base64Temario, request.ArchivoTemario);
 
             await _repository.AddAsync(entity);
             response.Success = true;
@@ -187,12 +189,12 @@ public class TallerService : ITallerService
 
             if (request.Base64Portada != null)
             {
-                //entity.PortadaUrl = await _fileUploader.UploadFileAsync(request.Base64Portada, request.ArchivoPortada);
+                entity.PortadaUrl = await _fileUploader.UploadFileAsync(request.Base64Portada, request.ArchivoPortada);
             }
 
             if (request.Base64Temario != null)
             {
-                //entity.TemarioUrl = await _fileUploader.UploadFileAsync(request.Base64Temario, request.ArchivoTemario);
+                entity.TemarioUrl = await _fileUploader.UploadFileAsync(request.Base64Temario, request.ArchivoTemario);
             }
 
             await _repository.UpdateAsync();
