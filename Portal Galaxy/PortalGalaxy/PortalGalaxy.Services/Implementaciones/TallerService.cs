@@ -158,9 +158,27 @@ public class TallerService : ITallerService
         return response;
     }
 
-    public Task<BaseResponseGeneric<TallerHomeDtoResponse>> GetTallerHomeAsync(int id)
+    public async Task<BaseResponseGeneric<TallerHomeDtoResponse>> GetTallerHomeAsync(int id)
     {
-        throw new NotImplementedException();
+        var response = new BaseResponseGeneric<TallerHomeDtoResponse>();
+        try
+        {
+            var entity = await _repository.ObtenerTallerHomeAsync(id);
+            if (entity == null)
+            {
+                response.ErrorMessage = "No se encontró el Taller";
+                return response;
+            }
+
+            response.Data = _mapper.Map<TallerHomeDtoResponse>(entity);
+            response.Success = true;
+        }
+        catch (Exception ex)
+        {
+            response.ErrorMessage = "Error al buscar un Taller";
+            _logger.LogError(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
+        }
+        return response;
     }
 
     public Task<BaseResponseGeneric<ICollection<TalleresPorMesDto>>> ReporteTalleresPorMes(int anio)
