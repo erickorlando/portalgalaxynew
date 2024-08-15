@@ -5,6 +5,8 @@ public class AppSettings
 {
     public Jwt Jwt { get; set; }
     public SmtpConfiguration SmtpConfiguration { get; set; }
+
+    public StorageConfiguration StorageConfiguration { get; set; }
 }
 
 public class Jwt
@@ -22,4 +24,11 @@ public class SmtpConfiguration
     public string Password { get; set; }
     public int Port { get; set; }
     public bool EnableSsl { get; set; }
+}
+
+public class StorageConfiguration
+{
+    public string Path { get; set; }
+
+    public string PublicUrl { get; set; }
 }
