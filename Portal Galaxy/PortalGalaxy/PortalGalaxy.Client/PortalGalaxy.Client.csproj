@@ -31,11 +31,14 @@
 
 	<ItemGroup>
 	  <_ContentIncludedByDefault Remove="Genericos\ListaGenerica.razor" />
+	  <_ContentIncludedByDefault Remove="Pages\Auth\MyAccount.razor" />
 	  <_ContentIncludedByDefault Remove="Pages\Categorias\BotonesAccion.razor" />
 	  <_ContentIncludedByDefault Remove="Pages\Talleres\CrearTaller.razor" />
 	  <_ContentIncludedByDefault Remove="Pages\Talleres\ListInscritosPorTaller.razor" />
 	  <_ContentIncludedByDefault Remove="Pages\Talleres\ListTaller.razor" />
+	  <_ContentIncludedByDefault Remove="Shared\CambioClave.razor" />
 	  <_ContentIncludedByDefault Remove="Shared\DataPager.razor" />
+	  <_ContentIncludedByDefault Remove="Shared\DatosPersonales.razor" />
 	  <_ContentIncludedByDefault Remove="Shared\ModalInstructor.razor" />
 	</ItemGroup>
 
@@ -65,6 +68,18 @@
 
 	<ItemGroup>
 	  <UpToDateCheckInput Remove="Pages\Talleres\ListInscritosPorTaller.razor" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <UpToDateCheckInput Remove="Pages\Auth\MyAccount.razor" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <UpToDateCheckInput Remove="Shared\DatosPersonales.razor" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <UpToDateCheckInput Remove="Shared\CambioClave.razor" />
 	</ItemGroup>
 
 </Project>

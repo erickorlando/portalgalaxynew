@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PortalGalaxy.Services.Interfaces;
 using PortalGalaxy.Shared.Request;
+using System.Security.Claims;
 
 namespace PortalGalaxy.Server.Controllers
 {
@@ -50,5 +52,33 @@ namespace PortalGalaxy.Server.Controllers
             return Ok(await _service.ResetPasswordAsync(request));
         }
 
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDtoRequest request)
+        {
+            // Recuperamos el email del usuario autenticado
+            var email = HttpContext.User.Claims.First(p => p.Type == ClaimTypes.Email).Value;
+            var response = await _service.ChangePasswordAsync(request, email);
+
+            return response.Success ? Ok(response) : BadRequest(request);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> UpdateProfile(UpdateProfileDtoRequest request)
+        {
+            var response = await _service.UpdateProfileAsync(request);
+            return response.Success ? Ok(response) : BadRequest(response);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Get()
+        {
+            // Recuperamos el email del usuario autenticado
+            var dto =  new BusquedaPerfilDtoRequest(HttpContext.User.Claims.First(p => p.Type == ClaimTypes.Email).Value);
+            var response = await _service.GetProfileAsync(dto);
+            return response.Success ? Ok(response) : NotFound(response);
+        }
     }
 }

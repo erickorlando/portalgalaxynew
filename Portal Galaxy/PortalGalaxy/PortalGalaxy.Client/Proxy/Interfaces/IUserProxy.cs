@@ -12,4 +12,10 @@ public interface IUserProxy
     Task SendTokenToResetPassword(GenerateTokenToResetDtoRequest request);
 
     Task<BaseResponse> ResetPassword(ResetPasswordDtoRequest request);
+
+    Task<BaseResponse> ChangePasswordAsync(ChangePasswordDtoRequest request);
+
+    Task<BaseResponse> UpdateProfileAsync(UpdateProfileDtoRequest request);
+
+    Task<BaseResponseGeneric<AlumnoDtoResponse>> GetProfileAsync();
 }

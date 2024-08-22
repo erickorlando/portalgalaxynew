@@ -12,4 +12,10 @@ public interface IUserService
     Task<BaseResponse> SendTokenToResetPasswordAsync(GenerateTokenToResetDtoRequest request);
 
     Task<BaseResponse> ResetPasswordAsync(ResetPasswordDtoRequest request);
+
+    Task<BaseResponse> ChangePasswordAsync(ChangePasswordDtoRequest request, string email);
+
+    Task<BaseResponse> UpdateProfileAsync(UpdateProfileDtoRequest request);
+
+    Task<BaseResponseGeneric<AlumnoDtoResponse>> GetProfileAsync(BusquedaPerfilDtoRequest request);
 }

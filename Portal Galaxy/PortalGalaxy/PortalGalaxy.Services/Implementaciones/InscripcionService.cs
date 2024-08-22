@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
 using PortalGalaxy.Entities;
+using PortalGalaxy.Entities.Infos;
 using PortalGalaxy.Repositories.Interfaces;
 using PortalGalaxy.Services.Interfaces;
 using PortalGalaxy.Services.Utils;
@@ -47,6 +48,33 @@ public class InscripcionService : IInscripcionService
 
         return response;
 
+    }
+
+    public async Task<BaseResponseGeneric<ICollection<InscripcionDtoResponse>>> ListAsync(string email)
+    {
+        var response = new BaseResponseGeneric<ICollection<InscripcionDtoResponse>>();
+        try
+        {
+            var collection = await _repository.ListAsync(p => p.Alumno.Correo == email,
+                selector: p => new InscripcionInfo()
+                {
+                    Id = p.Id,
+                    Fecha = p.FechaCreacion.ToString("dd/MM/yyyy"),
+                    Nombre = p.Alumno.NombreCompleto,
+                    Situacion = p.Situacion.ToString(),
+                    Taller = p.Taller.Nombre
+                },
+                relaciones: "Alumno,Taller");
+
+            response.Data = _mapper.Map<ICollection<InscripcionDtoResponse>>(collection);
+            response.Success = true;
+        }
+        catch (Exception ex)
+        {
+            response.ErrorMessage = "Error al listar las inscripciones por alumno";
+            _logger.LogError(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
+        }
+        return response;
     }
 
     public async Task<BaseResponse> AddAsync(string email, InscripcionDtoRequest request)
@@ -143,6 +171,26 @@ public class InscripcionService : IInscripcionService
         }
 
         return response;
+    }
+
+    public async Task<BaseResponse> CambiarSituacionAsync(int id)
+    {
+        var response = new BaseResponse();
+
+        try
+        {
+            await _repository.CambiarSituacionAsync(id);
+
+            response.Success = true;
+        }
+        catch (Exception ex)
+        {
+            response.ErrorMessage = "Error al actualizar la situacion";
+            _logger.LogError(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
+        }
+
+        return response;
+
     }
 
     public async Task<BaseResponse> DeleteAsync(int id)

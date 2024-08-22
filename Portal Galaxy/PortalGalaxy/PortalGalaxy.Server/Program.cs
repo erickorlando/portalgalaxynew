@@ -43,6 +43,8 @@ builder.Services.AddIdentity<GalaxyIdentityUser, IdentityRole>(policies =>
         policies.Password.RequiredLength = 8;
 
         policies.User.RequireUniqueEmail = true;
+        // Esto solo se habilita si deseas que el usuario deba estar validado primero antes de iniciar sesion
+        //policies.SignIn.RequireConfirmedAccount = true;
 
         // Politica de bloqueo de cuentas
         policies.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromHours(1);

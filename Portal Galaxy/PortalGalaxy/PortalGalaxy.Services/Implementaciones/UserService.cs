@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -14,8 +16,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.WebUtilities;
 
 namespace PortalGalaxy.Services.Implementaciones;
 
@@ -264,6 +264,150 @@ public class UserService : IUserService
             response.ErrorMessage = $"Error al resetear el password para el usuario {request.Email}";
             _logger.LogCritical(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
         }
+        return response;
+    }
+
+    public async Task<BaseResponse> ChangePasswordAsync(ChangePasswordDtoRequest request, string email)
+    {
+        var response = new BaseResponse();
+        try
+        {
+            var usuario = await _userManager.FindByEmailAsync(email);
+            if (usuario is null)
+                throw new ApplicationException("Usuario no existe");
+
+            var result = await _userManager.ChangePasswordAsync(usuario, request.OldPassword, request.NewPassword);
+            response.Success = result.Succeeded;
+
+            if (!result.Succeeded)
+            {
+                _logger.LogWarning("El cambio de clave no fue exitoso");
+                var sb = new StringBuilder();
+                foreach (var identityError in result.Errors)
+                {
+                    sb.AppendFormat("{0} ", identityError.Description);
+                }
+
+                response.ErrorMessage = sb.ToString();
+                sb.Clear();
+            }
+            else
+            {
+                // enviamos un email con la confirmacion de que se cambio la clave con exito
+                await _emailService.SendEmailAsync(email, "Portal Galaxy - Cambio de clave exitoso",
+                    "Su clave ha sido cambiada con exito");
+            }
+        }
+        catch (Exception ex)
+        {
+            response.ErrorMessage = $"Error al cambiar el password para el usuario {email}";
+            _logger.LogCritical(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
+        }
+        return response;
+    }
+
+    public async Task<BaseResponse> UpdateProfileAsync(UpdateProfileDtoRequest request)
+    {
+        var response = new BaseResponse();
+        try
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user is null)
+                throw new ApplicationException("Usuario no existe");
+
+            user.NombreCompleto = request.NombreCompleto;
+            user.PhoneNumber = request.Telefono; // Esto no tiene efecto
+            user.Email = request.Email; // Esto no tiene efecto
+
+            var alumno = await _alumnoRepository.FindByEmailAsync(request.Email, true);
+            if (alumno is not null)
+            {
+                alumno.NombreCompleto = request.NombreCompleto;
+                alumno.NroDocumento = request.NroDocumento;
+                alumno.Telefono = request.Telefono;
+                alumno.Departamento = request.Departamento;
+                alumno.Provincia = request.Provincia;
+                alumno.Distrito = request.Distrito;
+
+                await _alumnoRepository.UpdateAsync();
+            }
+
+            var result = await _userManager.UpdateAsync(user);
+            response.Success = result.Succeeded;
+
+            if (!result.Succeeded)
+            {
+                _logger.LogWarning("El cambio de perfil no fue exitoso");
+                var sb = new StringBuilder();
+                foreach (var identityError in result.Errors)
+                {
+                    sb.AppendFormat("{0} ", identityError.Description);
+                }
+
+                response.ErrorMessage = sb.ToString();
+                sb.Clear();
+            }
+            else
+            {
+                var tokenEmail = await _userManager.GenerateChangeEmailTokenAsync(user, request.Email);
+                await _userManager.ChangeEmailAsync(user, request.Email, tokenEmail);
+
+                var tokenPhone = await _userManager.GenerateChangePhoneNumberTokenAsync(user, request.Telefono);
+                await _userManager.ChangePhoneNumberAsync(user, request.Telefono, tokenPhone);
+
+                // enviamos un email con la confirmacion de que se cambio la clave con exito
+                await _emailService.SendEmailAsync(request.Email, "Portal Galaxy - Actualizacion de perfil exitoso",
+                    "Su perfil ha sido cambiado con exito");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            response.ErrorMessage = $"Error al cambiar los datos para el usuario {request.Email}";
+            _logger.LogCritical(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
+        }
+        return response;
+    }
+
+    public async Task<BaseResponseGeneric<AlumnoDtoResponse>> GetProfileAsync(BusquedaPerfilDtoRequest request)
+    {
+        var response = new BaseResponseGeneric<AlumnoDtoResponse>();
+
+        try
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user is null)
+                throw new ApplicationException("Usuario no existe");
+
+            var dto = new AlumnoDtoResponse()
+            {
+                NombreCompleto = user.NombreCompleto,
+                Correo = user.Email!,
+                Telefono = user.PhoneNumber,
+            };
+
+            var alumno = await _alumnoRepository.FindByEmailAsync(request.Email);
+            if (alumno is null)
+            {
+                throw new ApplicationException("Alumno no existe");
+            }
+
+            dto.Id = alumno.Id;
+            dto.NroDocumento = alumno.NroDocumento;
+            dto.Telefono = alumno.Telefono ?? string.Empty;
+            dto.Departamento = alumno.Departamento;
+            dto.Provincia = alumno.Provincia;
+            dto.Distrito = alumno.Distrito;
+
+            response.Data = dto;
+            response.Success = true;
+        }
+        catch (Exception ex)
+        {
+            response.ErrorMessage = $"Error al obtener los datos para el usuario {request.Email}";
+            _logger.LogCritical(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
+        }
+
         return response;
     }
 }
