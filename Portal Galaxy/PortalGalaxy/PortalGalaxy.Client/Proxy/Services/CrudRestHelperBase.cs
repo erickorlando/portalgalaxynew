@@ -16,6 +16,13 @@ public class CrudRestHelperBase<TRequest, TResponse> : RestBase, ICrudRestHelper
 
     public async Task<PaginationResponse<TResponse>> ListAsync(string? filter, int page = 1, int pageSize = 5)
     {
+        var respuesta = await HttpClient.GetAsync($"{BaseUrl}/{filter}");
+        if (respuesta.StatusCode == HttpStatusCode.BadRequest)
+        {
+            // las reglas no se cumplieron
+        }
+
+
         var response = await HttpClient.GetFromJsonAsync<PaginationResponse<TResponse>>($"{BaseUrl}{filter}");
         if (response!.Success)
         {

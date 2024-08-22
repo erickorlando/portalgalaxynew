@@ -60,7 +60,7 @@ namespace PortalGalaxy.Server.Controllers
             var email = HttpContext.User.Claims.First(p => p.Type == ClaimTypes.Email).Value;
             var response = await _service.ChangePasswordAsync(request, email);
 
-            return response.Success ? Ok(response) : BadRequest(request);
+            return response.Success ? Ok(response) : BadRequest(response);
         }
 
         [HttpPost]
