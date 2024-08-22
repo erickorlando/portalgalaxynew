@@ -1,0 +1,185 @@
+﻿@page "/account"
+@attribute [Authorize]
+@inject IToastService ToastService
+@inject IUserProxy UserProxy
+@inject IJsonProxy JsonProxy
+
+<PageTitle>Mi cuenta</PageTitle>
+
+<h1>Mi Cuenta</h1>
+
+<div>
+    <h2>Cambie su informacion personal</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-3">
+            <ul class="nav nav-pills flex-column">
+                <li class="nav-item mb-3">
+                    <a class="w-100 btn btn-log btn-primary" @onclick="() => CambiarVista(0)">Datos Personales</a>
+                </li>
+                <li class="nav-item">
+                    <a class="w-100 btn btn-log btn-primary" @onclick="() => CambiarVista(1)">Cambio de clave</a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-9">
+            @if (VistaSeleccionada == 0)
+            {
+                <DatosPersonales Model="Perfil" OnGrabar="GrabarDatosPersonales"
+                                 Departamentos="Departamentos"
+                                 Provincias="Provincias"
+                                 Distritos="Distritos"
+                                 OnDepartamentoSelected="OnDepartamentoSelected"
+                                 OnProvinciaSelected="OnProvinciaSelected" />
+            }
+            else
+            {
+                <CambioClave Model="CambioPassword" OnGrabar="CambiarPassword" />
+            }
+        </div>
+    </div>
+</div>
+
+<LoadingComponent IsLoading="IsLoading" />
+
+@code {
+
+    private int VistaSeleccionada { get; set; }
+
+    private bool IsLoading { get; set; }
+
+    private UpdateProfileDtoRequest? Perfil { get; set; }
+    private ChangePasswordDtoRequest? CambioPassword { get; set; }
+
+    public ICollection<DepartamentoModel> Departamentos { get; set; } = new List<DepartamentoModel>();
+    public ICollection<ProvinciaModel> Provincias { get; set; } = new List<ProvinciaModel>();
+    public ICollection<DistritoModel> Distritos { get; set; } = new List<DistritoModel>();
+
+    private async Task CambiarVista(int vista)
+    {
+        try
+        {
+            IsLoading = true;
+            VistaSeleccionada = vista;
+
+            var perfil = await UserProxy.GetProfileAsync();
+
+            switch (vista)
+            {
+                case 0:
+                    Perfil = new UpdateProfileDtoRequest()
+                        {
+                            NombreCompleto = perfil.Data.NombreCompleto,
+                            Email = perfil.Data.Correo,
+                            Telefono = perfil.Data.Telefono ?? string.Empty,
+                            NroDocumento = perfil.Data.NroDocumento,
+                            Departamento = perfil.Data.Departamento,
+                            Provincia = perfil.Data.Provincia,
+                            Distrito = perfil.Data.Distrito,
+                        };
+                    break;
+                case 1:
+                    CambioPassword = new();
+                    break;
+            }
+
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CambiarVista(0);
+        Departamentos = await JsonProxy.ListDepartamentos();
+    }
+
+    private async Task GrabarDatosPersonales()
+    {
+        try
+        {
+            IsLoading = true;
+            if (Perfil is not null)
+            {
+                var response = await UserProxy.UpdateProfileAsync(Perfil);
+                if (response.Success)
+                    ToastService.ShowSuccess("Datos actualizados correctamente!");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task CambiarPassword()
+    {
+        try
+        {
+            IsLoading = true;
+            if (CambioPassword is not null)
+            {
+                var response = await UserProxy.ChangePasswordAsync(CambioPassword);
+                if (response.Success)
+                    ToastService.ShowSuccess("Clave actualizada correctamente!");
+                else
+                {
+                    ToastService.ShowWarning(response.ErrorMessage!);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task OnDepartamentoSelected(ChangeEventArgs args)
+    {
+        if (Perfil is null) return;
+
+        var codDpto = args.Value!.ToString()!;
+        if (args.Value != null && !codDpto.StartsWith("-"))
+        {
+            Provincias = await JsonProxy.ListProvincias(codDpto);
+            Distritos = new List<DistritoModel>();
+            Perfil.Departamento = codDpto;
+        }
+        else
+        {
+            Provincias = new List<ProvinciaModel>();
+            Distritos = new List<DistritoModel>();
+        }
+    }
+
+    private async Task OnProvinciaSelected(ChangeEventArgs args)
+    {
+        if (Perfil is null) return;
+
+        var codProvincia = args.Value!.ToString()!;
+        if (args.Value != null && !codProvincia.StartsWith("-"))
+        {
+            Distritos = await JsonProxy.ListDistritos(codProvincia);
+            Perfil.Provincia = codProvincia;
+        }
+        else
+        {
+            Distritos = new List<DistritoModel>();
+        }
+    }
+
+}

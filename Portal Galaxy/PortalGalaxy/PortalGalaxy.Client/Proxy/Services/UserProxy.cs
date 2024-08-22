@@ -51,17 +51,37 @@ public class UserProxy : RestBase, IUserProxy
 
     public async Task<BaseResponse> ResetPassword(ResetPasswordDtoRequest request)
     {
-        //var response = await _httpClient.PostAsJsonAsync("api/Users/ResetPassword", request);
-        //if (!response.IsSuccessStatusCode)
-        //{
-        //    var jsonResponse = await response.Content.ReadFromJsonAsync<BaseResponse>();
-        //    throw new InvalidOperationException(jsonResponse!.ErrorMessage);
-        //}
-
         var response = await SendAsync<ResetPasswordDtoRequest, BaseResponse>(request, 
-                HttpMethod.Post, "api/Users/ResetPassword");
+                HttpMethod.Post, "ResetPassword");
 
         return response;
     }
 
+    public async Task<BaseResponse> ChangePasswordAsync(ChangePasswordDtoRequest request)
+    {
+        var response = await SendAsync<ChangePasswordDtoRequest, BaseResponse>(request,
+            HttpMethod.Post, "ChangePassword");
+
+        return response;
+    }
+
+    public async Task<BaseResponse> UpdateProfileAsync(UpdateProfileDtoRequest request)
+    {
+        var response = await SendAsync<UpdateProfileDtoRequest, BaseResponse>(request,
+            HttpMethod.Post, "UpdateProfile");
+
+        return response;
+    }
+
+    public async Task<BaseResponseGeneric<AlumnoDtoResponse>> GetProfileAsync()
+    {
+        var response = await HttpClient.GetFromJsonAsync<BaseResponseGeneric<AlumnoDtoResponse>>("api/Users/Get");
+
+        if (response is { Success: true, Data: not null })
+        {
+            return response;
+        }
+
+        throw new InvalidOperationException(response!.ErrorMessage);
+    }
 }

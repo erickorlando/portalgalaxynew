@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -14,8 +16,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.WebUtilities;
 
 namespace PortalGalaxy.Services.Implementaciones;
 
@@ -267,12 +267,12 @@ public class UserService : IUserService
         return response;
     }
 
-    public async Task<BaseResponse> ChangePasswordAsync(ChangePasswordDtoRequest request)
+    public async Task<BaseResponse> ChangePasswordAsync(ChangePasswordDtoRequest request, string email)
     {
         var response = new BaseResponse();
         try
         {
-            var usuario = await _userManager.FindByEmailAsync(request.Email);
+            var usuario = await _userManager.FindByEmailAsync(email);
             if (usuario is null)
                 throw new ApplicationException("Usuario no existe");
 
@@ -294,13 +294,13 @@ public class UserService : IUserService
             else
             {
                 // enviamos un email con la confirmacion de que se cambio la clave con exito
-                await _emailService.SendEmailAsync(request.Email, "Portal Galaxy - Cambio de clave exitoso",
+                await _emailService.SendEmailAsync(email, "Portal Galaxy - Cambio de clave exitoso",
                     "Su clave ha sido cambiada con exito");
             }
         }
         catch (Exception ex)
         {
-            response.ErrorMessage = $"Error al cambiar el password para el usuario {request.Email}";
+            response.ErrorMessage = $"Error al cambiar el password para el usuario {email}";
             _logger.LogCritical(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
         }
         return response;
@@ -393,6 +393,8 @@ public class UserService : IUserService
             }
 
             dto.Id = alumno.Id;
+            dto.NroDocumento = alumno.NroDocumento;
+            dto.Telefono = alumno.Telefono ?? string.Empty;
             dto.Departamento = alumno.Departamento;
             dto.Provincia = alumno.Provincia;
             dto.Distrito = alumno.Distrito;
@@ -402,7 +404,7 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
-             response.ErrorMessage = $"Error al obtener los datos para el usuario {request.Email}";
+            response.ErrorMessage = $"Error al obtener los datos para el usuario {request.Email}";
             _logger.LogCritical(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
         }
 

@@ -17,5 +17,4 @@ public class ChangePasswordDtoRequest
     [Display(Name = "Confirmar clave")]
     public string ConfirmPassword { get; set; } = default!;
 
-    public string Email { get; set; } = default!;
 }

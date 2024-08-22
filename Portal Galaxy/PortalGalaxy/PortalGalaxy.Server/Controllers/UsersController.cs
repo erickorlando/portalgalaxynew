@@ -57,8 +57,8 @@ namespace PortalGalaxy.Server.Controllers
         public async Task<IActionResult> ChangePassword(ChangePasswordDtoRequest request)
         {
             // Recuperamos el email del usuario autenticado
-            request.Email = HttpContext.User.Claims.First(p => p.Type == ClaimTypes.Email).Value;
-            var response = await _service.ChangePasswordAsync(request);
+            var email = HttpContext.User.Claims.First(p => p.Type == ClaimTypes.Email).Value;
+            var response = await _service.ChangePasswordAsync(request, email);
 
             return response.Success ? Ok(response) : BadRequest(request);
         }
