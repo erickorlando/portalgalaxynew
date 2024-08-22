@@ -39,4 +39,18 @@ public class InscripcionRepository : RepositoryBase<Inscripcion>, IInscripcionRe
         await Context.Set<Inscripcion>().AddRangeAsync(inscripciones);
         await Context.SaveChangesAsync();
     }
+
+    public async Task CambiarSituacionAsync(int id)
+    {
+        var registro = await FindByIdAsync(id);
+
+        if (registro is not null)
+        {
+            registro.Situacion = registro.Situacion == SituacionInscripcion.Asistira
+                ? SituacionInscripcion.Cancelado
+                : SituacionInscripcion.Asistira;
+
+            await UpdateAsync();
+        }
+    }
 }

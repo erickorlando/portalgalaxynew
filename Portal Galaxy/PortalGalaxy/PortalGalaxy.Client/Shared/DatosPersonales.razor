@@ -10,24 +10,23 @@
         <EditForm Model="Model" OnValidSubmit="OnSave">
             <DataAnnotationsValidator />
             <div class="form-floating mb-3">
-                <input @bind-value="Model.NombreCompleto" class="form-control" placeholder="Juan Perez" id="nombre"/>
+                <input @bind-value="Model.NombreCompleto" class="form-control" placeholder="Juan Perez" id="nombre" />
                 <label for="nombre" class="form-label">Nombre Completo</label>
                 <ValidationMessage For="() => Model.NombreCompleto" />
             </div>
             <div class="form-floating mb-3">
-                <input @bind-value="Model.NroDocumento" class="form-control" id="nroDocumento"/>
+                <input @bind-value="Model.NroDocumento" class="form-control" id="nroDocumento" />
                 <label for="nroDocumento" class="form-label">Nro. Documento</label>
                 <ValidationMessage For="() => Model.NroDocumento" />
             </div>
             <div class="form-floating mb-3">
-                <input @bind-value="Model.Telefono" class="form-control" id="telefono"/>
+                <input @bind-value="Model.Telefono" class="form-control" id="telefono" />
                 <label for="telefono" class="form-label">Teléfono</label>
                 <ValidationMessage For="() => Model.Telefono" />
             </div>
             <div class="form-floating mb-3">
-                <input @bind-value="Model.Email" class="form-control" id="email"/>
+                <input class="form-control" id="email" value="@Correo" readonly />
                 <label for="email" class="form-label">Correo</label>
-                <ValidationMessage For="() => Model.Email" />
             </div>
             <div class="form-floating mb-1">
                 <select class="form-select" @onchange="OnDepartamentoSelected" id="comboDpto">
@@ -69,14 +68,14 @@
 @code {
 
     [Parameter]
-    public UpdateProfileDtoRequest? Model { get; set; } 
+    public UpdateProfileDtoRequest? Model { get; set; }
 
     [Parameter]
     public EventCallback OnGrabar { get; set; }
 
     [Parameter]
     public ICollection<DepartamentoModel> Departamentos { get; set; } = new List<DepartamentoModel>();
-    
+
     [Parameter]
     public ICollection<ProvinciaModel> Provincias { get; set; } = new List<ProvinciaModel>();
 
@@ -85,21 +84,23 @@
 
     [Parameter]
     public EventCallback<ChangeEventArgs> OnDepartamentoSelected { get; set; }
-    
+
     [Parameter]
     public EventCallback<ChangeEventArgs> OnProvinciaSelected { get; set; }
+
+    private string Correo => Model?.Email ?? string.Empty;
 
     private async Task OnSave()
     {
         var result = await Swal.FireAsync(new SweetAlertOptions("Actualizar cuenta")
-        {
-            Icon = SweetAlertIcon.Question,
-            Text = "¿Está seguro de proceder?",
-            ConfirmButtonText = "Sí",
-            CancelButtonText = "No",
-            ShowCancelButton = true,
-            AllowEnterKey = true
-        });
+            {
+                Icon = SweetAlertIcon.Question,
+                Text = "¿Está seguro de proceder?",
+                ConfirmButtonText = "Sí",
+                CancelButtonText = "No",
+                ShowCancelButton = true,
+                AllowEnterKey = true
+            });
 
         if (result.IsConfirmed)
         {
@@ -107,5 +108,5 @@
         }
     }
 
-    
+
 }

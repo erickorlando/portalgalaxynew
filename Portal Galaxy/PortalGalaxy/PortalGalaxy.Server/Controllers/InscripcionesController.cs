@@ -34,6 +34,15 @@ public class InscripcionesController : ControllerBase
         return response.Success ? Ok(response) : BadRequest(response);
     }
 
+    [HttpGet("talleres")]
+    [Authorize]
+    public async Task<IActionResult> Get()
+    {
+        var email = User.Claims.First(p => p.Type == ClaimTypes.Email).Value;
+        var response = await _service.ListAsync(email);
+        return Ok(response);
+    }
+
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> Post([FromBody] InscripcionDtoRequest request)
@@ -63,6 +72,13 @@ public class InscripcionesController : ControllerBase
         return response.Success ? Ok(response) : BadRequest(response);
     }
 
+    [HttpPatch("{id:int}")]
+    [Authorize]
+    public async Task<IActionResult> Patch(int id)
+    {
+        return Ok(await _service.CambiarSituacionAsync(id));
+    }
+
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -70,4 +86,6 @@ public class InscripcionesController : ControllerBase
 
         return response.Success ? Ok(response) : BadRequest(response);
     }
+
+    
 }

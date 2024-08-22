@@ -6,7 +6,7 @@ public class UpdateProfileDtoRequest
 {
     [Required(ErrorMessage = Constantes.CampoRequerido)]
     public string Email { get; set; } = default!;
-    
+
     [Required(ErrorMessage = Constantes.CampoRequerido)]
     [Display(Name = "Nro. Documento")]
     public string NroDocumento { get; set; } = default!;

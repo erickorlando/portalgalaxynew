@@ -7,9 +7,12 @@ public interface IInscripcionService
 {
     Task<PaginationResponse<InscripcionDtoResponse>> ListAsync(BusquedaInscripcionRequest request);
 
+    Task<BaseResponseGeneric<ICollection<InscripcionDtoResponse>>> ListAsync(string email);
+
     Task<BaseResponse> AddAsync(string email, InscripcionDtoRequest request);
     Task<BaseResponseGeneric<InscripcionDtoRequest>> FindByIdAsync(int id);
     Task<BaseResponse> UpdateAsync(string email, int id, InscripcionDtoRequest request);
     Task<BaseResponse> DeleteAsync(int id);
     Task<BaseResponse> AddMasivaAsync(InscripcionMasivaDtoRequest request);
+    Task<BaseResponse> CambiarSituacionAsync(int id);
 }
