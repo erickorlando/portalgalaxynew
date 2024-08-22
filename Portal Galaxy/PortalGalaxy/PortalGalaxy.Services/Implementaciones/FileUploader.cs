@@ -1,4 +1,3 @@
-using System;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
