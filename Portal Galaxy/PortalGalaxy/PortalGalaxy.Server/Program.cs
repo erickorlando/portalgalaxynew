@@ -121,6 +121,20 @@ app.MapControllers();
 app.MapFallbackToFile("index.html");
 
 
+var group = app.MapGroup("api/Reportes");
+
+group.MapGet("tallerespormes/{anio:int}", async (ITallerService service, int anio) =>
+{
+    var response = await service.ReporteTalleresPorMes(anio);
+    return response;
+});
+
+group.MapGet("talleresporinstructor/{anio:int}", async (ITallerService service, int anio) =>
+{
+    var response = await service.ReporteTalleresPorInstructor(anio);
+    return response;
+});
+
 using (var scope = app.Services.CreateScope())
 {
     await UserDataSeeder.Seed(scope.ServiceProvider);

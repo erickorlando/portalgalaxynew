@@ -181,14 +181,47 @@ public class TallerService : ITallerService
         return response;
     }
 
-    public Task<BaseResponseGeneric<ICollection<TalleresPorMesDto>>> ReporteTalleresPorMes(int anio)
+    public async Task<BaseResponseGeneric<ICollection<TalleresPorMesDto>>> ReporteTalleresPorMes(int anio)
     {
-        throw new NotImplementedException();
+        var response = new BaseResponseGeneric<ICollection<TalleresPorMesDto>>();
+
+        try
+        {
+            // Codigo
+            response.Data =
+                _mapper.Map<ICollection<TalleresPorMesDto>>(await _repository.ListarTalleresPorMesAsync(anio));
+            response.Success = true;
+        }
+        catch (Exception ex)
+        {
+            response.ErrorMessage = "Error al cargar los datos";
+            _logger.LogError(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
+        }
+
+        return response;
+
     }
 
-    public Task<BaseResponseGeneric<ICollection<TalleresPorInstructorDto>>> ReporteTalleresPorInstructor(int anio)
+    public async Task<BaseResponseGeneric<ICollection<TalleresPorInstructorDto>>> ReporteTalleresPorInstructor(int anio)
     {
-        throw new NotImplementedException();
+        var response = new BaseResponseGeneric<ICollection<TalleresPorInstructorDto>>();
+
+        try
+        {
+            // Codigo
+            response.Data =
+                _mapper.Map<ICollection<TalleresPorInstructorDto>>(
+                    await _repository.ListarTalleresPorInstructorAsync(anio));
+            response.Success = true;
+        }
+        catch (Exception ex)
+        {
+            response.ErrorMessage = "Error al cargar los datos de instructor";
+            _logger.LogError(ex, "{ErrorMessage} {Message}", response.ErrorMessage, ex.Message);
+        }
+
+        return response;
+
     }
 
     public async Task<BaseResponse> UpdateAsync(int id, TallerDtoRequest request)

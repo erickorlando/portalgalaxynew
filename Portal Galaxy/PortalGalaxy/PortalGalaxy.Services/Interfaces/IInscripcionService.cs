@@ -7,7 +7,7 @@ public interface IInscripcionService
 {
     Task<PaginationResponse<InscripcionDtoResponse>> ListAsync(BusquedaInscripcionRequest request);
 
-    Task<BaseResponseGeneric<ICollection<InscripcionDtoResponse>>> ListAsync(string email);
+    Task<PaginationResponse<InscripcionDtoResponse>> ListAsync(string email, int pagina = 1, int filas = 5);
 
     Task<BaseResponse> AddAsync(string email, InscripcionDtoRequest request);
     Task<BaseResponseGeneric<InscripcionDtoRequest>> FindByIdAsync(int id);

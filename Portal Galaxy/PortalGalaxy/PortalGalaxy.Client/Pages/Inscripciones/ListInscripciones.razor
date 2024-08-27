@@ -1,4 +1,6 @@
 ﻿@page "/inscripciones/list"
+@using System.ComponentModel.DataAnnotations
+@using System.Text
 @inject IInscripcionProxy InscripcionProxy
 @inject IJsonProxy JsonProxy
 @inject IToastService ToastService
@@ -270,11 +272,34 @@
         ListaTalleres = response.Data;
     }
 
+    private List<ValidationResult> _results = new List<ValidationResult>();
+
     private async Task InscribirMasivo(InscripcionMasivaDtoRequest request)
     {
         try
         {
             IsLoading = true;
+
+            var context = new ValidationContext(request);
+
+            _results.Clear();
+
+            var isValid = Validator.TryValidateObject(request, context, _results, true);
+
+            if (!isValid)
+            {
+                var sb = new StringBuilder();
+                foreach (var result in _results)
+                {
+                    sb.AppendFormat("{0} ", result.ErrorMessage);
+                }
+
+                ToastService.ShowWarning(sb.ToString());
+
+                sb.Clear();
+
+                return;
+            }
             
             await InscripcionProxy.InscripcionMasivaAsync(request);
             

@@ -36,10 +36,10 @@ public class InscripcionesController : ControllerBase
 
     [HttpGet("talleres")]
     [Authorize]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> Get(int pagina, int filas)
     {
         var email = User.Claims.First(p => p.Type == ClaimTypes.Email).Value;
-        var response = await _service.ListAsync(email);
+        var response = await _service.ListAsync(email, pagina, filas);
         return Ok(response);
     }
 

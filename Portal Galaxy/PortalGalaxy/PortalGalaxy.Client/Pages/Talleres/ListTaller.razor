@@ -1,4 +1,5 @@
 ﻿@page "/taller/list"
+@using System.ComponentModel.DataAnnotations
 @using PortalGalaxy.Client.Xls
 @inject ITallerProxy Proxy
 @inject IJsonProxy JsonProxy
@@ -54,6 +55,15 @@
                 <button class="btn btn-primary" @onclick="OnNuevo"><i class="bi bi-plus-circle me-1"></i>Nuevo</button>
             </div>
         </div>
+        @if (validationResults is { Count: > 0 })
+        {
+            <ul>
+                @foreach(var error in validationResults)
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        }
     </Filtros>
     <Cabeceras>
         <th>#</th>
@@ -142,12 +152,20 @@
             };
     }
 
+    private List<ValidationResult> validationResults = new List<ValidationResult>();
+
     private async Task OnSearch()
     {
         try
 
         {
             IsLoading = true;
+
+            var context = new ValidationContext(BusquedaRequest);
+
+            var isValid = Validator.TryValidateObject(BusquedaRequest, context, validationResults, true);
+
+            if (!isValid) return;
 
             var response = await Proxy.ListAsync(BusquedaRequest);
 
