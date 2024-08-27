@@ -30,6 +30,18 @@ public class InscripcionProxy : CrudRestHelperBase<InscripcionDtoRequest, Inscri
         return response!;
     }
 
+    public async Task<PaginationResponse<InscripcionDtoResponse>> ListTalleresAsync(int pagina, int filas)
+    {
+        var response = await SendAsync<PaginationResponse<InscripcionDtoResponse>>($"talleres?pagina={pagina}&filas={filas}");
+
+        return response;
+    }
+
+    public async Task<BaseResponse> CambiarSituacionAsync(int id)
+    {
+        return await SendAsync<BaseResponse>($"{id}", HttpMethod.Patch);
+    }
+
     public async Task InscripcionMasivaAsync(InscripcionMasivaDtoRequest request)
     {
         var response = await HttpClient.PostAsJsonAsync($"{BaseUrl}/masiva", request);

@@ -50,12 +50,12 @@ public class InscripcionService : IInscripcionService
 
     }
 
-    public async Task<BaseResponseGeneric<ICollection<InscripcionDtoResponse>>> ListAsync(string email)
+    public async Task<PaginationResponse<InscripcionDtoResponse>> ListAsync(string email, int pagina = 1, int filas = 5)
     {
-        var response = new BaseResponseGeneric<ICollection<InscripcionDtoResponse>>();
+        var response = new PaginationResponse<InscripcionDtoResponse>();
         try
         {
-            var collection = await _repository.ListAsync(p => p.Alumno.Correo == email,
+            var tupla = await _repository.ListAsync(p => p.Alumno.Correo == email,
                 selector: p => new InscripcionInfo()
                 {
                     Id = p.Id,
@@ -64,9 +64,13 @@ public class InscripcionService : IInscripcionService
                     Situacion = p.Situacion.ToString(),
                     Taller = p.Taller.Nombre
                 },
-                relaciones: "Alumno,Taller");
+                relaciones: "Alumno,Taller",
+                orderBy: p => p.Taller,
+                pagina: pagina,
+                filas: filas);
 
-            response.Data = _mapper.Map<ICollection<InscripcionDtoResponse>>(collection);
+            response.Data = _mapper.Map<ICollection<InscripcionDtoResponse>>(tupla.Collection);
+            response.TotalPages = Helper.GetTotalPages(tupla.Total, filas);
             response.Success = true;
         }
         catch (Exception ex)

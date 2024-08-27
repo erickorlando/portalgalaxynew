@@ -3,6 +3,7 @@
 @inject IToastService ToastService
 @inject IUserProxy UserProxy
 @inject IJsonProxy JsonProxy
+@inject IInscripcionProxy InscripcionProxy
 
 <PageTitle>Mi cuenta</PageTitle>
 
@@ -17,24 +18,36 @@
                 <li class="nav-item mb-3">
                     <a class="w-100 btn btn-log btn-primary" @onclick="() => CambiarVista(0)">Datos Personales</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item mb-3">
                     <a class="w-100 btn btn-log btn-primary" @onclick="() => CambiarVista(1)">Cambio de clave</a>
+                </li>
+                <li class="nav-item">
+                    <a class="w-100 btn btn-log btn-primary" @onclick="() => CambiarVista(2)">Talleres Inscritos</a>
                 </li>
             </ul>
         </div>
         <div class="col-md-9">
-            @if (VistaSeleccionada == 0)
+            @switch (VistaSeleccionada)
             {
-                <DatosPersonales Model="Perfil" OnGrabar="GrabarDatosPersonales"
-                                 Departamentos="Departamentos"
-                                 Provincias="Provincias"
-                                 Distritos="Distritos"
-                                 OnDepartamentoSelected="OnDepartamentoSelected"
-                                 OnProvinciaSelected="OnProvinciaSelected" />
-            }
-            else
-            {
-                <CambioClave Model="CambioPassword" OnGrabar="CambiarPassword" />
+                case 0:
+                    <DatosPersonales Model="Perfil" OnGrabar="GrabarDatosPersonales"
+                                     Departamentos="Departamentos"
+                                     Provincias="Provincias"
+                                     Distritos="Distritos"
+                                     OnDepartamentoSelected="OnDepartamentoSelected"
+                                     OnProvinciaSelected="OnProvinciaSelected" />
+                    break;
+                case 1:
+                    <CambioClave Model="CambioPassword" OnGrabar="CambiarPassword" />
+                    break;
+                default:
+                    <TalleresAlumno CargarLista="CargaTalleresAlumno"
+                                    CambiarSituacionClick="CambiarSituacion"
+                                    Inscripciones="Inscripciones?.Data"
+                                    IsLoading="IsLoading" />
+
+                    <DataPager Result="PagedResult" OnPageChanged="PaginaCambiada" OnPageSizeChanged="FilasPorPagina" />
+                    break;
             }
         </div>
     </div>
@@ -54,6 +67,17 @@
     public ICollection<DepartamentoModel> Departamentos { get; set; } = new List<DepartamentoModel>();
     public ICollection<ProvinciaModel> Provincias { get; set; } = new List<ProvinciaModel>();
     public ICollection<DistritoModel> Distritos { get; set; } = new List<DistritoModel>();
+
+    public PaginationResponse<InscripcionDtoResponse>? Inscripciones { get; set; }
+    public int Pagina { get; set; } = 1;
+    public int Filas { get; set; } = 5;
+
+    private PagedResult<InscripcionDtoResponse> PagedResult { get; set; } = new()
+        {
+            RowPerPage = 5,
+            CurrentPage = 1
+        };
+
 
     private async Task CambiarVista(int vista)
     {
@@ -80,6 +104,9 @@
                     break;
                 case 1:
                     CambioPassword = new();
+                    break;
+                default:
+                    await CargaTalleresAlumno();
                     break;
             }
 
@@ -180,6 +207,59 @@
         {
             Distritos = new List<DistritoModel>();
         }
+    }
+
+    private async Task CargaTalleresAlumno()
+    {
+        try
+        {
+            IsLoading = true;
+            Inscripciones = await InscripcionProxy.ListTalleresAsync(Pagina, Filas);
+
+            if (Inscripciones is { Data: not null })
+            {
+                PagedResult.Results = Inscripciones.Data;
+                PagedResult.RowCount = Inscripciones.Data.Count;
+                PagedResult.TotalPages = Inscripciones.TotalPages;
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowWarning(ex.Message);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+
+    }
+
+    private async Task CambiarSituacion(InscripcionDtoResponse item)
+    {
+        try
+        {
+            await InscripcionProxy.CambiarSituacionAsync(item.Id);
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.Message);
+        }
+    }
+
+    private async Task PaginaCambiada()
+    {
+        IsLoading = true;
+        Pagina = PagedResult.CurrentPage;
+        Filas = PagedResult.RowPerPage;
+        await CargaTalleresAlumno();
+
+    }
+
+    private async Task FilasPorPagina()
+    {
+        Pagina = PagedResult.CurrentPage;
+        Filas = PagedResult.RowPerPage;
+        await CargaTalleresAlumno();
     }
 
 }

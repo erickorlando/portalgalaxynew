@@ -7,5 +7,9 @@ public interface IInscripcionProxy : ICrudRestHelper<InscripcionDtoRequest, Insc
 {
     Task<PaginationResponse<InscripcionDtoResponse>> ListAsync(BusquedaInscripcionRequest request);
 
+    Task<PaginationResponse<InscripcionDtoResponse>> ListTalleresAsync(int pagina, int filas);
+
+    Task<BaseResponse> CambiarSituacionAsync(int id);
+
     Task InscripcionMasivaAsync(InscripcionMasivaDtoRequest request);
 }

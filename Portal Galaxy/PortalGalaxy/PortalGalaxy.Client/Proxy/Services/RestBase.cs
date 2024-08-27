@@ -41,4 +41,62 @@ public class RestBase
 
         throw new InvalidOperationException($"Error en la solicitud {url}");
     }
+
+    protected async Task<TOutput> SendAsync<TOutput>(string url)
+    where TOutput : BaseResponse
+    {
+        try
+        {
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"{BaseUrl}/{url}");
+
+            var response = await HttpClient.SendAsync(requestMessage);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorResponse = await response.Content.ReadFromJsonAsync<BaseResponse>();
+                throw new InvalidOperationException(errorResponse!.ErrorMessage);
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<TOutput>();
+            if (result is not null)
+            {
+                return result;
+            }
+
+            throw new InvalidOperationException(await response.Content.ReadAsStringAsync());
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Error en la solicitud {ex.Message}");
+        }
+    }
+    
+    protected async Task<TOutput> SendAsync<TOutput>(string url, HttpMethod httpMethod)
+    where TOutput : BaseResponse
+    {
+        try
+        {
+            var requestMessage = new HttpRequestMessage(httpMethod, $"{BaseUrl}/{url}");
+
+            var response = await HttpClient.SendAsync(requestMessage);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorResponse = await response.Content.ReadFromJsonAsync<BaseResponse>();
+                throw new InvalidOperationException(errorResponse!.ErrorMessage);
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<TOutput>();
+            if (result is not null)
+            {
+                return result;
+            }
+
+            throw new InvalidOperationException(await response.Content.ReadAsStringAsync());
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Error en la solicitud {ex.Message}");
+        }
+    }
 }

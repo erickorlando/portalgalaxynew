@@ -1,0 +1,69 @@
+﻿@inject IToastService ToastService
+
+<ListaGenerica TItem="InscripcionDtoResponse" Lista="Inscripciones" Titulo="Talleres inscritos">
+    <Filtros>
+    </Filtros>
+    <Cabeceras>
+        <td>Taller</td>
+        <td>Fecha Inscripción</td>
+        <td>Situación</td>
+        <td>Acciones</td>
+    </Cabeceras>
+    <Detalles>
+        <td>@context.Taller</td>
+        <td>@context.Fecha</td>
+        <td>@context.Situacion</td>
+        <td>
+            <button type="button" class="btn" @onclick="() => CambiarSituacion(context)">
+                @switch (@context.Situacion)
+                {
+                    case "Asistira":
+
+                        <i class="bi bi-check-circle-fill" style="color: green;"></i>
+                        break;
+                    case "Cancelado":
+                        <i class="bi bi-check-circle-fill" style="color: red;"></i>
+                        break;
+                }
+            </button>
+        </td>
+    </Detalles>
+</ListaGenerica>
+
+@code {
+
+    [Parameter]
+    public bool IsLoading { get; set; }
+
+    [Parameter]
+    public ICollection<InscripcionDtoResponse>? Inscripciones { get; set; }
+
+    [Parameter]
+    public EventCallback<InscripcionDtoResponse> CambiarSituacionClick { get; set; }
+
+    [Parameter]
+    public EventCallback CargarLista { get; set; }
+
+    private async Task CambiarSituacion(InscripcionDtoResponse item)
+    {
+        try
+        {
+            IsLoading = true;
+
+            await CambiarSituacionClick.InvokeAsync(item);
+
+            await CargarLista.InvokeAsync();
+
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+   
+}
