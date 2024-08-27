@@ -29,4 +29,7 @@ builder.Services.Scan(selector => selector
 
 builder.Services.AddScoped<AuthenticationStateProvider, AuthenticationService>();
 builder.Services.AddAuthorizationCore();
+
+builder.Services.AddBlazorBootstrap();
+
 await builder.Build().RunAsync();
