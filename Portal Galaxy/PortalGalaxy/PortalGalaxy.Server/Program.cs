@@ -137,6 +137,12 @@ group.MapGet("talleresporinstructor/{anio:int}", async (ITallerService service, 
 
 using (var scope = app.Services.CreateScope())
 {
+    var security = scope.ServiceProvider.GetRequiredService<SecurityDbContext>();
+    security.Database.Migrate();
+    
+    var dbContext = scope.ServiceProvider.GetRequiredService<PortalGalaxyDbContext>();
+    dbContext.Database.Migrate();
+
     await UserDataSeeder.Seed(scope.ServiceProvider);
 }
 

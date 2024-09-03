@@ -9,9 +9,11 @@ public class TallerConfiguration : IEntityTypeConfiguration<Taller>
     public void Configure(EntityTypeBuilder<Taller> builder)
     {
         builder.Property(p => p.PortadaUrl)
+            .HasMaxLength(500)
             .IsUnicode(false); //VARCHAR EN LUGAR DE NVARCHAR
         
         builder.Property(p => p.TemarioUrl)
+            .HasMaxLength(500)
             .IsUnicode(false); //VARCHAR EN LUGAR DE NVARCHAR
 
         builder.Property(p => p.Descripcion)
